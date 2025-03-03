@@ -30,4 +30,27 @@ class SpanContext {
         traceFlags = api.TraceFlags.none,
         traceState = api.TraceState.empty(),
         isRemote = false;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'traceId': traceId.toJson(),
+      'spanId': spanId.toJson(),
+      'traceFlags': traceFlags,
+      'traceState': traceState.toJson(),
+      'isRemote': isRemote,
+    };
+  }
+
+  factory SpanContext.fromJson(Map<String, dynamic> json) {
+    final ctxt = SpanContext(
+      api.TraceId.fromJson(json['traceId']),
+      api.SpanId.fromJson(json['spanId']),
+      json['traceFlags'],
+      api.TraceState.fromJson(json['traceState']),
+    );
+    return json['isRemote']
+        ? SpanContext.remote(
+            ctxt.traceId, ctxt.spanId, ctxt.traceFlags, ctxt.traceState)
+        : ctxt;
+  }
 }

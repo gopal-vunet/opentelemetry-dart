@@ -10,4 +10,20 @@ class SpanLink {
 
   SpanLink(this.context,
       {this.attributes = const [], this.droppedAttributes = 0});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'context': context.toJson(),
+      'attributes': attributes.map((e) => e.toJson()).toList(),
+      'droppedAttributes': droppedAttributes,
+    };
+  }
+
+  factory SpanLink.fromJson(Map<String, dynamic> json) {
+    return SpanLink(
+      api.SpanContext.fromJson(json['context']),
+      attributes: (json['attributes'] as List).map((e) => api.Attribute.fromJson(e)).toList(),
+      droppedAttributes: json['droppedAttributes'],
+    );
+  }
 }

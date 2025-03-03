@@ -27,4 +27,22 @@ class InstrumentationScope {
   List<api.Attribute> get attributes {
     return _attributes;
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': _name,
+      'version': _version,
+      'schemaUrl': _schemaUrl,
+      'attributes': _attributes.map((e) => e.toJson()).toList(),
+    };
+  }
+
+  factory InstrumentationScope.fromJson(Map<String, dynamic> json) {
+    return InstrumentationScope(
+      json['name'],
+      json['version'],
+      json['schemaUrl'],
+      (json['attributes'] as List).map((e) => api.Attribute.fromJson(e)).toList(),
+    );
+  }
 }

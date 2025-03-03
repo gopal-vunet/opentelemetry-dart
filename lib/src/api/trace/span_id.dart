@@ -34,4 +34,14 @@ class SpanId {
   @override
   String toString() =>
       _id.map((x) => x.toRadixString(16).padLeft(2, '0')).join();
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': _id,
+    };
+  }
+
+  factory SpanId.fromJson(Map<String, dynamic> json) {
+    return SpanId(List<int>.from(json['id']));
+  }
 }

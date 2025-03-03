@@ -18,4 +18,19 @@ enum StatusCode {
 class SpanStatus {
   StatusCode code = StatusCode.unset;
   String description = '';
+
+  SpanStatus();
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code.toString(),
+      'description': description,
+    };
+  }
+
+  factory SpanStatus.fromJson(Map<String, dynamic> json) {
+    return SpanStatus()
+      ..code = StatusCode.values.firstWhere((e) => e.toString() == json['code'])
+      ..description = json['description'];
+  }
 }

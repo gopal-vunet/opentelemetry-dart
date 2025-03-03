@@ -34,6 +34,14 @@ class TraceState {
     }
   }
 
+  TraceState.fromJson(Map<String, dynamic> json) {
+    json.forEach((key, value) {
+      if (value is String) {
+        put(key, value);
+      }
+    });
+  }
+
   static TraceState getDefault() => TraceState.empty();
 
   /// Determine if the given key is valid.
@@ -126,6 +134,10 @@ class TraceState {
     });
 
     return state;
+  }
+
+  Map<String, String> toJson() {
+    return Map<String, String>.from(_state);
   }
 
   bool get isEmpty => _state.isEmpty;

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. Please see https://github.com/Workiva/opentelemetry-dart/blob/master/LICENSE for more information
 
 import 'package:fixnum/fixnum.dart';
+import 'package:opentelemetry/src/sdk/trace/read_only_span_impl.dart';
 
 import '../../../api.dart' as api;
 import '../../../sdk.dart' as sdk;
@@ -53,4 +54,30 @@ abstract class ReadOnlySpan {
   int get droppedAttributes;
 
   sdk.Resource get resource;
+
+  Map<String, dynamic> toJson();
+
+  factory ReadOnlySpan.fromJson(Map<String, dynamic> json) {
+    return ReadOnlySpanImpl(
+      name: json['name'],
+      kind: api.SpanKind.values.firstWhere((e) => e.toString() == json['kind']),
+      spanContext: api.SpanContext.fromJson(json['spanContext']),
+      parentSpanId: api.SpanId.fromJson(json['parentSpanId']),
+      startTime: Int64.parseInt(json['startTime']),
+      endTime: json['endTime'] != null ? Int64.parseInt(json['endTime']) : null,
+      status: api.SpanStatus.fromJson(json['status']),
+      events: (json['events'] as List)
+          .map((e) => api.SpanEvent.fromJson(e))
+          .toList(),
+      droppedEventsCount: json['droppedEventsCount'],
+      instrumentationScope:
+          sdk.InstrumentationScope.fromJson(json['instrumentationScope']),
+      links:
+          (json['links'] as List).map((l) => api.SpanLink.fromJson(l)).toList(),
+      droppedLinksCount: json['droppedLinksCount'],
+      attributes: Attributes.fromJson(json['attributes']),
+      droppedAttributes: json['droppedAttributes'],
+      resource: sdk.Resource.fromJson(json['resource']),
+    );
+  }
 }
