@@ -3,8 +3,8 @@
 
 import 'dart:async';
 
-import 'package:opentelemetry/api.dart';
-import 'package:opentelemetry/sdk.dart'
+import 'package:vutelemetry/api.dart';
+import 'package:vutelemetry/sdk.dart'
     show ConsoleExporter, SimpleSpanProcessor, TracerProviderBase;
 
 mixin EventContext {
@@ -17,7 +17,8 @@ class MyEvent with EventContext {
 
 void main() async {
   final tp = TracerProviderBase(
-          processors: [SimpleSpanProcessor(ConsoleExporter())]),
+        processors: [SimpleSpanProcessor(ConsoleExporter())],
+      ),
       tracer = tp.getTracer('instrumentation-name');
 
   final controller = StreamController<MyEvent>();

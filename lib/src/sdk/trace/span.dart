@@ -3,7 +3,7 @@
 
 import 'package:fixnum/fixnum.dart';
 import 'package:meta/meta.dart';
-import 'package:opentelemetry/api.dart';
+import 'package:vutelemetry/api.dart';
 
 import '../../../api.dart' as api;
 import '../../../sdk.dart' as sdk;
@@ -216,7 +216,7 @@ class Span extends sdk.ReadWriteSpan {
 
   @override
   int get droppedEventsCount => _droppedSpanEvents;
-  
+
   @override
   Map<String, dynamic> toJson() {
     return {

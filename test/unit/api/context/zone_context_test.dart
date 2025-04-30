@@ -4,8 +4,8 @@
 @TestOn('vm')
 import 'dart:async';
 
-import 'package:opentelemetry/api.dart';
-import 'package:opentelemetry/src/api/context/zone_context.dart';
+import 'package:vutelemetry/api.dart';
+import 'package:vutelemetry/src/api/context/zone_context.dart';
 import 'package:test/test.dart';
 
 void main() {

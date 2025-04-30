@@ -1,12 +1,12 @@
 // Copyright 2021-2022 Workiva.
 // Licensed under the Apache License, Version 2.0. Please see https://github.com/Workiva/opentelemetry-dart/blob/master/LICENSE for more information
 
-import 'package:opentelemetry/api.dart' as api;
-import 'package:opentelemetry/sdk.dart' as sdk;
-import 'package:opentelemetry/src/experimental_api.dart';
-import 'package:opentelemetry/src/sdk/trace/span.dart';
+import 'package:vutelemetry/api.dart' as api;
+import 'package:vutelemetry/sdk.dart' as sdk;
+import 'package:vutelemetry/src/experimental_api.dart';
+import 'package:vutelemetry/src/sdk/trace/span.dart';
 import 'package:test/test.dart';
-import 'package:opentelemetry/src/api/context/map_context.dart';
+import 'package:vutelemetry/src/api/context/map_context.dart';
 
 void main() {
   final testSpanContext = api.SpanContext(api.TraceId([1, 2, 3]),

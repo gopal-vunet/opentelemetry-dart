@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
-import 'package:opentelemetry/api.dart';
-import 'package:opentelemetry/flutter_sdk.dart';
-import 'package:opentelemetry/opentelemetry_platform_interface.dart';
-import 'package:opentelemetry/sdk.dart';
-import 'package:opentelemetry/src/instrumentation/frame_monitoring.dart';
-import 'package:opentelemetry/src/instrumentation/global_attribute.dart';
+package:vutelemetry/api.dart';
+import 'package:vutelemetry/k.dart';
+import 'package:vutelemetry/try_platform_interface.dart';
+import 'package:vutelemetry/
+import 'package:vutelemetry/mentation/frame_monitoring.dart';
+import 'package:vutelemetry/mentation/global_attribute.dart';
 
 class InitialisationParams {
   final String logsIngestUrl;

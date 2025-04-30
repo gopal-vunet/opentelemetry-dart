@@ -1,19 +1,21 @@
 // Copyright 2021-2022 Workiva.
 // Licensed under the Apache License, Version 2.0. Please see https://github.com/Workiva/opentelemetry-dart/blob/master/LICENSE for more information
 
-import 'package:opentelemetry/api.dart';
-import 'package:opentelemetry/sdk.dart'
+import 'package:vutelemetry/api.dart';
+import 'package:vutelemetry/sdk.dart'
     show ConsoleExporter, SimpleSpanProcessor, TracerProviderBase;
 
 void main() {
   final tp = TracerProviderBase(
-          processors: [SimpleSpanProcessor(ConsoleExporter())]),
+        processors: [SimpleSpanProcessor(ConsoleExporter())],
+      ),
       tracer = tp.getTracer('instrumentation-name');
 
   // Attach the root span to the current context (the root context) making the
   // span the current span until it is detached.
   final rootToken = Context.attach(
-      contextWithSpan(Context.current, tracer.startSpan('root-1')..end()));
+    contextWithSpan(Context.current, tracer.startSpan('root-1')..end()),
+  );
 
   // Starting a child span will automatically parent the span to the span held
   // by the attached context.

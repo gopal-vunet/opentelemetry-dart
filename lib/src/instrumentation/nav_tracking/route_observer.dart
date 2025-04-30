@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:opentelemetry/api.dart';
-import 'package:opentelemetry/src/instrumentation/global_attribute.dart';
+import 'package:vutelemetry/api.dart';
+import 'package:vutelemetry/src/instrumentation/global_attribute.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RouteObserverService extends NavigatorObserver {

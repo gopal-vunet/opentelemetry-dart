@@ -1,11 +1,10 @@
-
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:opentelemetry/api.dart';
-import 'package:opentelemetry/src/instrumentation/global_attribute.dart';
-import 'package:opentelemetry/src/instrumentation/nav_tracking/route_observer.dart';
+import 'package:vutelemetry/api.dart';
+import 'package:vutelemetry/src/instrumentation/global_attribute.dart';
+import 'package:vutelemetry/src/instrumentation/nav_tracking/route_observer.dart';
 
 void startFrameMonitoring(Tracer tracer) async {
   const aggregationInterval = Duration(seconds: 5);

@@ -1,7 +1,7 @@
 // Copyright 2021-2022 Workiva.
 // Licensed under the Apache License, Version 2.0. Please see https://github.com/Workiva/opentelemetry-dart/blob/master/LICENSE for more information
 
-import 'package:opentelemetry/api.dart' as api;
+import 'package:vutelemetry/api.dart' as api;
 
 class InstrumentationScope {
   final String _name;
@@ -42,7 +42,9 @@ class InstrumentationScope {
       json['name'],
       json['version'],
       json['schemaUrl'],
-      (json['attributes'] as List).map((e) => api.Attribute.fromJson(e)).toList(),
+      (json['attributes'] as List)
+          .map((e) => api.Attribute.fromJson(e))
+          .toList(),
     );
   }
 }

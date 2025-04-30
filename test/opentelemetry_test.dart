@@ -1,13 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opentelemetry/opentelemetry.dart';
-import 'package:opentelemetry/opentelemetry_platform_interface.dart';
-import 'package:opentelemetry/opentelemetry_method_channel.dart';
+import 'package:vutelemetry/opentelemetry.dart';
+import 'package:vutelemetry/opentelemetry_platform_interface.dart';
+import 'package:vutelemetry/opentelemetry_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockOpentelemetryPlatform
     with MockPlatformInterfaceMixin
     implements OpentelemetryPlatform {
-
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
 }

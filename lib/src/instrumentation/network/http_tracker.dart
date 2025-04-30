@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
-import 'package:opentelemetry/api.dart';
-import 'package:opentelemetry/flutter_sdk.dart';
-import 'package:opentelemetry/src/instrumentation/global_attribute.dart';
+import 'package:vutelemetry/api.dart';
+import 'package:vutelemetry/flutter_sdk.dart';
+import 'package:vutelemetry/src/instrumentation/global_attribute.dart';
 
 class _TextMapSetter implements TextMapSetter<Map<String, String>> {
   @override
@@ -106,7 +106,6 @@ class TrackedHttpClient extends BaseClient {
           DateTime.now().microsecondsSinceEpoch.toString(),
         ),
       );
-
 
       throw e;
     }).whenComplete(() async {

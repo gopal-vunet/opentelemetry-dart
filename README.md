@@ -54,7 +54,7 @@ dependencies {
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:opentelemetry/flutter_sdk.dart';
+import 'package:vutelemetry/flutter_sdk.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,11 +1,10 @@
-import 'package:opentelemetry/api.dart';
-import 'package:opentelemetry/src/instrumentation/global_attribute.dart';
-import 'package:opentelemetry/src/instrumentation/nav_tracking/route_observer.dart';
+import 'package:vutelemetry/api.dart';
+import 'package:vutelemetry/src/instrumentation/global_attribute.dart';
+import 'package:vutelemetry/src/instrumentation/nav_tracking/route_observer.dart';
 
 final Tracer _tracer = globalTracerProvider.getTracer('click-instrumentation');
 
 void logClickEvent(String eventName, {Map<String, String>? attributes}) async {
-  
   final span = _tracer.startSpan(
     'Click',
     kind: SpanKind.client,

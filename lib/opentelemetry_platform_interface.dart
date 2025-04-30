@@ -1,4 +1,4 @@
-import 'package:opentelemetry/src/instrumentation/initialisation.dart';
+import 'package:vutelemetry/src/instrumentation/initialisation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'opentelemetry_method_channel.dart';

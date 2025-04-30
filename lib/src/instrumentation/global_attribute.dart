@@ -1,6 +1,6 @@
-import 'package:opentelemetry/api.dart';
-import 'package:opentelemetry/opentelemetry_platform_interface.dart';
-import 'package:opentelemetry/src/instrumentation/initialisation.dart';
+import 'package:vutelemetry/api.dart';
+import 'package:vutelemetry/opentelemetry_platform_interface.dart';
+import 'package:vutelemetry/src/instrumentation/initialisation.dart';
 
 /// This method is called to add global attributes to a span
 /// before it is sent to the server.
@@ -16,7 +16,8 @@ Future<void> addGlobalAttribute(Span span) async {
   });
 
   span.setAttribute(
-    Attribute.fromString('android.type', VuTelemetry.initialisationParams.appType),
+    Attribute.fromString(
+        'android.type', VuTelemetry.initialisationParams.appType),
   );
   span.setAttribute(
     Attribute.fromString('app.name', VuTelemetry.initialisationParams.appName),
