@@ -79,32 +79,8 @@ class DiskSpanProcessor implements SpanProcessor {
 
   void _addToBuffer(ReadOnlySpan span) {
     if (_spanBuffer.length >= _maxQueueSize) {
-      // runZonedGuarded(
-      //   () async {
-      //     print(jsonEncode(span.toJson()));
-      //     await SpanFileStorage.saveSpan(span.toJson());
-      //   },
-      //   (error, stackTrace) {
-      //     _log.severe('Error saving span to disk: $error', error, stackTrace);
-      //   },
-      //   zoneValues: {'logPrefix': '[DiskSpanProcessor] '},
-      //   zoneSpecification: ZoneSpecification(
-      //     print: (self, parent, zone, message) {
-      //       parent.print(zone, '${zone['logPrefix']} $message');
-      //     },
-      //   ),
-      // );
-
       SpanFileStorage.saveSpan(span.toJson());
-
-      // _log.warning(
-      //     'Max queue size exceeded. Dropping ${_spanBuffer.length} spans.');
-
       _exportBatch(_timer);
-
-      // _log.info(
-      //     'Max queue size exceeded in buffer ${_spanBuffer.length} spans. Storing in Disk');
-      // return;
     }
 
     final isSampled =
@@ -155,7 +131,6 @@ class DiskSpanProcessor implements SpanProcessor {
 }
 
 class SpanFileStorage {
-  static Logger _log = Logger('opentelemetry.SpanFileStorage');
   static final List<Map<String, dynamic>> _spanQueue = [];
   static bool _isIsolateRunning = false;
 

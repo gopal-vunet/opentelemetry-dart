@@ -19,7 +19,7 @@ import '../../proto/opentelemetry/proto/resource/v1/resource.pb.dart'
     as pb_resource;
 import '../../proto/opentelemetry/proto/trace/v1/trace.pb.dart' as pb_trace;
 
-class CollectorExporter implements sdk.SpanExporter {
+class CollectorExporterWithDisk implements sdk.SpanExporter {
   final Logger _log = Logger('opentelemetry.CollectorExporter');
 
   final Uri uri;
@@ -27,7 +27,7 @@ class CollectorExporter implements sdk.SpanExporter {
   final Map<String, String> headers;
   var _isShutdown = false;
 
-  CollectorExporter(this.uri,
+  CollectorExporterWithDisk(this.uri,
       {http.Client? httpClient, this.headers = const {}})
       : client = httpClient ?? http.Client();
 
@@ -59,16 +59,10 @@ class CollectorExporter implements sdk.SpanExporter {
     final headers = {'Content-Type': 'application/x-protobuf'}
       ..addAll(this.headers);
 
-    // Log the serialized protobuf data
-    // _log.info('Serialized protobuf data: ${body.writeToBuffer()}');
-
     while (retries < maxRetries) {
       try {
         final response = await client.post(uri,
             body: body.writeToBuffer(), headers: headers);
-        // Log the response status and body
-        _log.info('Response status: ${response.statusCode}');
-        _log.info('Response body: ${response.body}');
         if (response.statusCode == 200) {
           return;
         }

@@ -1,0 +1,87 @@
+group = "com.example.opentelemetry"
+version = "1.0-SNAPSHOT"
+
+buildscript {
+    ext.kotlin_version = "1.8.22"
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.7.0")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+android {
+    namespace = "com.example.opentelemetry"
+
+    compileSdk = 35
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11
+    }
+
+    sourceSets {
+        main.java.srcDirs += "src/main/kotlin"
+        test.java.srcDirs += "src/test/kotlin"
+    }
+
+    defaultConfig {
+        minSdk = 21
+    }
+
+    dependencies {
+        testImplementation("org.jetbrains.kotlin:kotlin-test")
+        testImplementation("org.mockito:mockito-core:5.0.0")
+
+        // BOM for version management
+        implementation platform('io.opentelemetry:opentelemetry-bom:1.45.0')
+
+        // Explicit OpenTelemetry dependencies
+        implementation "io.opentelemetry:opentelemetry-api"
+        implementation "io.opentelemetry:opentelemetry-sdk"
+        implementation "io.opentelemetry:opentelemetry-context"
+        implementation "io.opentelemetry:opentelemetry-exporter-otlp"
+        implementation "io.opentelemetry:opentelemetry-exporter-logging"
+        implementation "io.opentelemetry:opentelemetry-extension-kotlin"
+
+        // Remove or align API Incubator version with BOM
+        implementation "io.opentelemetry:opentelemetry-api-incubator"
+
+        // Android-specific dependencies
+        implementation("io.opentelemetry.android:android-agent:0.9.1-alpha")
+
+        implementation("io.opentelemetry.android:instrumentation-sessions:0.9.1-alpha")
+        implementation("io.opentelemetry.android:services:0.9.1-alpha")
+        coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.1.4")
+    }
+
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+
+            testLogging {
+               events "passed", "skipped", "failed", "standardOut", "standardError"
+               outputs.upToDateWhen {false}
+               showStandardStreams = true
+            }
+        }
+    }
+}
