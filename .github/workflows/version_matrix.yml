@@ -1,0 +1,36 @@
+name: Version Matrix Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Test minimum versions
+          - async: 2.5.0
+            collection: 1.15.0
+            http: 0.13.0
+          # Test maximum versions
+          - async: 2.11.0
+            collection: 1.18.0
+            http: 0.13.6
+          # Test mix of versions
+          - async: 2.5.0
+            collection: 1.18.0
+            http: 0.13.6
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1
+      
+      - name: Install dependencies
+        run: dart pub add async:${{ matrix.async }} collection:${{ matrix.collection }} http:${{ matrix.http }}
+      
+      - name: Run tests
+        run: dart test
