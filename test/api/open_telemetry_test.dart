@@ -3,10 +3,10 @@
 
 @TestOn('vm')
 
-import 'package:opentelemetry/api.dart';
-import 'package:opentelemetry/sdk.dart' as sdk;
-import 'package:opentelemetry/src/sdk/trace/span.dart' as sdk show Span;
-import 'package:opentelemetry/src/sdk/trace/tracer.dart' as sdk show Tracer;
+import 'package:vutelemetry/api.dart';
+import 'package:vutelemetry/sdk.dart' as sdk;
+import 'package:vutelemetry/src/sdk/trace/span.dart' as sdk show Span;
+import 'package:vutelemetry/src/sdk/trace/tracer.dart' as sdk show Tracer;
 import 'package:test/test.dart';
 
 void main() {

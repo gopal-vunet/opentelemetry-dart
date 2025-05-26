@@ -3,9 +3,9 @@
 
 @TestOn('chrome')
 import 'package:mocktail/mocktail.dart';
-import 'package:opentelemetry/src/sdk/trace/span.dart';
-import 'package:opentelemetry/src/sdk/trace/span_processors/span_processor.dart';
-import 'package:opentelemetry/src/sdk/platforms/web/trace/web_tracer_provider.dart';
+import 'package:vutelemetry/src/sdk/trace/span.dart';
+import 'package:vutelemetry/src/sdk/trace/span_processors/span_processor.dart';
+import 'package:vutelemetry/src/sdk/platforms/web/trace/web_tracer_provider.dart';
 import 'package:test/test.dart';
 
 import '../../../mocks.dart';

@@ -4,10 +4,10 @@
 @TestOn('vm')
 import 'package:fixnum/src/int64.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:opentelemetry/src/sdk/time_providers/time_provider.dart';
-import 'package:opentelemetry/src/sdk/trace/read_only_span.dart';
-import 'package:opentelemetry/src/sdk/trace/span_processors/span_processor.dart';
-import 'package:opentelemetry/src/sdk/trace/tracer_provider.dart';
+import 'package:vutelemetry/src/sdk/time_providers/time_provider.dart';
+import 'package:vutelemetry/src/sdk/trace/read_only_span.dart';
+import 'package:vutelemetry/src/sdk/trace/span_processors/span_processor.dart';
+import 'package:vutelemetry/src/sdk/trace/tracer_provider.dart';
 import 'package:test/test.dart';
 
 import '../mocks.dart';

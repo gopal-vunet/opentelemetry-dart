@@ -1,98 +1,174 @@
-# OpenTelemetry for Dart
 
-This repository is the Dart implementation of the [OpenTelemetry project](https://opentelemetry.io/). All contributions and designs should follow the [OpenTelemetry specification](https://github.com/open-telemetry/opentelemetry-specification).
+## Installation
+- Download the `vuTelemetry-Flutter` Plugin from o11ySources page
+- Add the plugin to your `pubspec.yaml` file and refer the path where you placed the downloaded plugin
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  opentelemetry:
+    path: ../../Projects/opentelemetry-dart
+```
 
-## Project Status
+### Android specific setup
 
-| Signal | Status |
-| - | - |
-| Traces | Beta |
-| Metrics | Alpha |
-| Logs | Unimplemented |
+- Supports from minimum android version of `6` or `API 24`
+- In your `app/build.gradle` or `app/build.gradle.kts` file  
+	- Enable `coreLibraryDesugaring` 
+	- Add coreLibraryDesugaring SDK
 
-## Getting Started
+```gradle
+android {
 
-This section will show you how to initialize the OpenTelemetry SDK, capture a span, and propagate context.
+	...
+	
+  compileOptions {
+    ...
+    isCoreLibraryDesugaringEnabled = true
+  }
 
-### Initialize the OpenTelemetry SDK
+  defaultConfig {
+    minSdk = 24
+  }
 
-```dart
-import 'package:opentelemetry/sdk.dart'
-    show
-        BatchSpanProcessor,
-        CollectorExporter,
-        ConsoleExporter,
-        SimpleSpanProcessor,
-        TracerProviderBase;
-import 'package:opentelemetry/api.dart'
-    show registerGlobalTracerProvider, globalTracerProvider;
+	...
 
-void main(List<String> args) {
-  final tracerProvider = TracerProviderBase(processors: [
-    BatchSpanProcessor(
-        CollectorExporter(Uri.parse('https://my-collector.com/v1/traces'))),
-    SimpleSpanProcessor(ConsoleExporter())
-  ]);
+}
 
-  registerGlobalTracerProvider(tracerProvider);
-  final tracer = globalTracerProvider.getTracer('instrumentation-name');
+dependencies {
+  coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 ```
 
-### Capture a Span
+
+## Initialisation
+
+- Import the vuTelemetry flutter library
+- Initialise with the following params
+	- `logsIngestUrl` - Given by MRUM o11ySource
+	- `tracesIngestUrl` -  Given by MRUM o11ySource
+	- `appName` - Name of you application
+	- `appType` - Like `Flutter` , `iOS` or `Android`
+	- `enableSlowFrameTracking` - Optional param - defaults to `false` - Used to track slow rendering of flutter screens - If a screen took more than 16ms to render then it is treated as slow rendering
+
 
 ```dart
-import 'package:opentelemetry/api.dart' show StatusCode, globalTracerProvider;
+import 'package:flutter/material.dart';
+import 'package:vutelemetry/flutter_sdk.dart';
 
-void main(List<String> args) {
-  final tracer = globalTracerProvider.getTracer('instrumentation-name');
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  final span = tracer.startSpan('main');
-  try {
-    // do some work
-    span.addEvent('some work');
-  } catch (e, s) {
-    span
-      ..setStatus(StatusCode.error, e.toString())
-      ..recordException(e, stackTrace: s);
-    rethrow;
-  } finally {
-    span.end();
+  // Initialize OpenTelemetry SDK
+  VuTelemetry.initialise(
+    params: InitialisationParams(
+      logsIngestUrl: 'http://10.0.2.2:4318/v1/logs',
+      tracesIngestUrl: 'http://10.0.2.2:4318/v1/traces',
+      appName: '<your-app-name>',
+      appType: 'Flutter',
+	  enableSlowFrameTracking: true,
+    ),
+  );
+
+  runApp(const MainApp());
+}
+```
+
+- This will trace all the errors and crashes
+
+
+### Tracing Screen Navigation 
+
+Use the `RouteObserverService` provided by the SDK to automatically trace all the screen navigation events.
+```dart
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: LoginPage(),
+      navigatorObservers: [RouteObserverService()],
+    );
   }
 }
 ```
 
-### Propagate Context
-
-### Intra-process
-
-In order to parent spans, context must be propagated. Propagation can be achieved by manually passing an instance of `Context` or by using Dart [`Zones`](https://dart.dev/libraries/async/zones).
-
-See the [attach detach context example](./example/attach_detach_context)for more information.
-
-### Inter-process
-
-In order to parent spans between processes, context can be serialized and deserialized using a `TextMapPropagator`, `TextMapSetter`, and `TextMapGetter`.
-
-See the [W3C context propagation example](./example/w3c_context_propagation.dart) for more information.
-
-#### High Resolution Timestamps
-
-A tracer provider can register a web-specific time provider that uses the browser's [performance API](https://developer.mozilla.org/en-US/docs/Web/API/Performance/now) instead of [DateTime](https://api.dart.dev/stable/dart-core/DateTime-class.html) when recording timestamps for a span's start timestamp, end timestamp, and span events.
+### Tracing Activitiies
+Use the method `VuTelemetry.logActivity` with an event name to record any Start recorning any activity. You can provide additional attributes to the  event. This again returns `ActivityTracer` instance, store this in a variable and call the `end` method in ActivityTracer to complete the activity.
 
 ```dart
-import 'package:opentelemetry/web_sdk.dart' as web_sdk;
+ElevatedButton(
+  onPressed: () async {
 
-final tracerProvider =
-    web_sdk.WebTracerProvider(timeProvider: web_sdk.WebTimeProvider());
+    final activity = VuTelemetry.logActivity('FundTransfer', attributes: {
+      'fromAccount': provider.selectedAccount?.accountNumber ?? '',
+      'toAccount': provider.selectedPayee?.payeeAccountNumber ?? '',
+      'amount': provider.amountController.text,
+    });
+
+    await provider.transfer();
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        activity.end();
+        return Dialog();
+      },
+    );
+  },
+            
+  child: const Text('Transfer'),
+)
+
 ```
 
-Important Note: Span timestamps may be inaccurate if the executing system is suspended for sleep. See [https://github.com/open-telemetry/opentelemetry-js/issues/852](https://github.com/open-telemetry/opentelemetry-js/issues/852) for more information.
 
-## Contributing
 
-In order to generate protobuf definitions, you must have [protoc](https://github.com/protocolbuffers/protobuf/releases) installed and available in your path.
+### Monitoring Network Calls
 
-### Publishing New Versions
+Use`TrackedHttpClient` Provided by the SDK
 
-Only Workiva maintainers can publish new versions of opentelemetry-dart. See [Publishing opentelemetry-dart](https://github.com/Workiva/Observability/blob/master/doc/publishing_opentelemetry_dart.md)
+```dart
+static final http.Client _client = TrackedHttpClient( http.Client());
+```
+
+This will automatically track Network events and add trace header to every network call in order to help distributed tracing 
+
+
+### Tracking Click Events
+
+Use the method `VuTelemetry.logClickEvent` with an event name to record any click event. You can provide additional attributes to the click event.
+
+```dart
+DropdownButton<Account>(
+  items: [...],
+  value: provider.selectedAccout,
+  hint: const Text('Select Account'),
+  onChanged: (v) {
+    VuTelemetry.logClickEvent(
+      'Account Switch',
+      attributes: {
+        'account_number': v?.accountNumber ?? '',
+      },
+    );
+    provider.switchAccount(v!);
+  },
+)
+```
+
+
+### Setting Custom Global Attributes
+
+You can set any global identifier like userId by using the methods
+- `VuTelemetry.setCustomAttribute`
+- `VuTelemetry.setCustomAttributes`
+
+```dart
+VuTelemetry.setCustomAttribute(
+	'userId',
+	'xxxxxxxxxxxx',
+);
+```
+

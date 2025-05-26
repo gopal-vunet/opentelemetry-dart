@@ -23,6 +23,12 @@ class TraceId {
   }
   TraceId.invalid() : this(List<int>.filled(sizeBytes, 0));
 
+  TraceId.fromJson(Map<String, dynamic> json) : _id = List<int>.from(json['id']);
+
+  Map<String, dynamic> toJson() => {
+    'id': _id,
+  };
+
   /// Retrieve this TraceId as a list of byte values.
   List<int> get() => _id;
 

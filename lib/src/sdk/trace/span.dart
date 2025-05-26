@@ -3,7 +3,7 @@
 
 import 'package:fixnum/fixnum.dart';
 import 'package:meta/meta.dart';
-import 'package:opentelemetry/api.dart';
+import 'package:vutelemetry/api.dart';
 
 import '../../../api.dart' as api;
 import '../../../sdk.dart' as sdk;
@@ -12,7 +12,7 @@ import '../common/limits.dart' show applyAttributeLimits, applyLinkLimits;
 
 /// A representation of a single operation within a trace.
 @protected
-class Span implements sdk.ReadWriteSpan {
+class Span extends sdk.ReadWriteSpan {
   final api.SpanContext _spanContext;
   final api.SpanId _parentSpanId;
   final api.SpanKind _kind;
@@ -216,4 +216,25 @@ class Span implements sdk.ReadWriteSpan {
 
   @override
   int get droppedEventsCount => _droppedSpanEvents;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'kind': kind.toString(),
+      'spanContext': spanContext.toJson(),
+      'parentSpanId': parentSpanId.toJson(),
+      'startTime': startTime.toString(),
+      'endTime': endTime?.toString(),
+      'status': status.toJson(),
+      'events': events.map((e) => e.toJson()).toList(),
+      'droppedEventsCount': droppedEventsCount,
+      'instrumentationScope': instrumentationScope.toJson(),
+      'links': links.map((l) => l.toJson()).toList(),
+      'droppedLinksCount': droppedLinksCount,
+      'attributes': attributes.toJson(),
+      'droppedAttributes': droppedAttributes,
+      'resource': resource.toJson(),
+    };
+  }
 }

@@ -3,9 +3,9 @@
 
 @TestOn('vm')
 
-import 'package:opentelemetry/api.dart' as api;
-import 'package:opentelemetry/src/sdk/trace/tracer.dart';
-import 'package:opentelemetry/src/sdk/trace/tracer_provider.dart';
+import 'package:vutelemetry/api.dart' as api;
+import 'package:vutelemetry/src/sdk/trace/tracer.dart';
+import 'package:vutelemetry/src/sdk/trace/tracer_provider.dart';
 import 'package:test/test.dart';
 
 void main() {

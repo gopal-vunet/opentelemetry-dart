@@ -25,6 +25,8 @@ export 'src/sdk/trace/span_limits.dart' show SpanLimits;
 export 'src/sdk/trace/span_processors/span_processor.dart' show SpanProcessor;
 export 'src/sdk/trace/span_processors/batch_processor.dart'
     show BatchSpanProcessor;
+export 'src/sdk/trace/span_processors/disk_span_processor.dart'
+    show DiskSpanProcessor;
 export 'src/sdk/trace/span_processors/simple_processor.dart'
     show SimpleSpanProcessor;
 export 'src/sdk/trace/tracer_provider.dart' show TracerProviderBase;

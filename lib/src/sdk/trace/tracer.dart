@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. Please see https://github.com/Workiva/opentelemetry-dart/blob/master/LICENSE for more information
 
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
+import 'package:vutelemetry/flutter_sdk.dart';
 
 import '../../../api.dart' as api;
 import '../../../sdk.dart' as sdk;
@@ -10,6 +13,9 @@ import '../common/limits.dart' show applyLinkLimits;
 import 'span.dart';
 
 /// An interface for creating [api.Span]s and propagating context in-process.
+
+final Logger _log = Logger('opentelemetry');
+
 class Tracer implements api.Tracer {
   final List<sdk.SpanProcessor> _processors;
   final sdk.Resource _resource;
@@ -37,7 +43,12 @@ class Tracer implements api.Tracer {
       List<api.SpanLink> links = const [],
       Int64? startTime,
       bool newRoot = false}) {
-    context ??= api.Context.current;
+
+    _log.fine('Tracer.startSpan: name=$name, context=$context, kind=$kind, '
+        'attributes=$attributes, links=$links, startTime=$startTime, newRoot=$newRoot');
+
+        
+    context ??= RouteObserverService().currentPageContext;
     startTime ??= _timeProvider.now;
 
     // If a valid, active Span is present in the context, use it as this Span's

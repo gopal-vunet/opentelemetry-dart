@@ -24,4 +24,22 @@ class SpanEvent {
     required this.attributes,
     this.droppedAttributesCount = 0,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'timestamp': timestamp.toString(),
+      'name': name,
+      'attributes': attributes.map((e) => e.toJson()).toList(),
+      'droppedAttributesCount': droppedAttributesCount,
+    };
+  }
+
+  factory SpanEvent.fromJson(Map<String, dynamic> json) {
+    return SpanEvent(
+      timestamp: Int64.parseInt(json['timestamp']),
+      name: json['name'],
+      attributes: (json['attributes'] as List).map((e) => api.Attribute.fromJson(e)).toList(),
+      droppedAttributesCount: json['droppedAttributesCount'],
+    );
+  }
 }

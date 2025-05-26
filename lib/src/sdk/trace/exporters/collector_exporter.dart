@@ -3,6 +3,8 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'dart:io';
+import 'dart:convert';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:http/http.dart' as http;
@@ -51,15 +53,22 @@ class CollectorExporter implements sdk.SpanExporter {
     // Retryable status from the spec: https://opentelemetry.io/docs/specs/otlp/#failures-1
     const valid_retry_codes = [429, 502, 503, 504];
 
+    var spansToProtobuf = _spansToProtobuf(spans);
     final body = pb_trace_service.ExportTraceServiceRequest(
-        resourceSpans: _spansToProtobuf(spans));
+        resourceSpans: spansToProtobuf);
     final headers = {'Content-Type': 'application/x-protobuf'}
       ..addAll(this.headers);
+
+    // Log the serialized protobuf data
+    // _log.info('Serialized protobuf data: ${body.writeToBuffer()}');
 
     while (retries < maxRetries) {
       try {
         final response = await client.post(uri,
             body: body.writeToBuffer(), headers: headers);
+        // Log the response status and body
+        _log.info('Response status: ${response.statusCode}');
+        _log.info('Response body: ${response.body}');
         if (response.statusCode == 200) {
           return;
         }
@@ -81,6 +90,15 @@ class CollectorExporter implements sdk.SpanExporter {
     }
     _log.severe(
         'Failed to export ${spans.length} spans after $maxRetries retries');
+    await _saveSpansToDisk(spans);
+  }
+
+  Future<void> _saveSpansToDisk(List<sdk.ReadOnlySpan> spans) async {
+    final file =
+        File('failed_spans_${DateTime.now().millisecondsSinceEpoch}.json');
+    final spansJson = spans.map((span) => span.toJson()).toList();
+    await file.writeAsString(jsonEncode(spansJson));
+    _log.info('Saved ${spans.length} spans to disk at ${file.path}');
   }
 
   Duration calculateJitteredDelay(int retries, Duration baseDelay) {

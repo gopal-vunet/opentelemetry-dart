@@ -11,4 +11,16 @@ class Resource {
       : _attributes = Attributes.empty()..addAll(attributes);
 
   Attributes get attributes => _attributes;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'attributes': _attributes.toJson(),
+    };
+  }
+
+  factory Resource.fromJson(Map<String, dynamic> json) {
+    return Resource(
+      (json['attributes'] as List).map((e) => api.Attribute.fromJson(e)).toList(),
+    );
+  }
 }

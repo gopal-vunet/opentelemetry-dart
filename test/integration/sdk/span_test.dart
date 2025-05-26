@@ -4,9 +4,9 @@
 @TestOn('vm')
 import 'package:fixnum/fixnum.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:opentelemetry/api.dart' as api;
-import 'package:opentelemetry/sdk.dart' as sdk;
-import 'package:opentelemetry/src/sdk/trace/span.dart';
+import 'package:vutelemetry/api.dart' as api;
+import 'package:vutelemetry/sdk.dart' as sdk;
+import 'package:vutelemetry/src/sdk/trace/span.dart';
 import 'package:test/test.dart';
 
 import '../../unit/mocks.dart';

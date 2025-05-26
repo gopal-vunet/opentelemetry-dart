@@ -30,4 +30,16 @@ class Attributes {
   void addAll(List<Attribute> attributes) {
     attributes.forEach(add);
   }
+
+  Map<String, dynamic> toJson() {
+    return _attributes.map((key, value) => MapEntry(key, value.toString()));
+  }
+
+  factory Attributes.fromJson(Map<String, dynamic> json) {
+    var attributes = Attributes.empty();
+    json.forEach((key, value) {
+      attributes.add(Attribute.fromObject(key, value));
+    });
+    return attributes;
+  }
 }
