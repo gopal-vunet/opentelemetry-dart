@@ -1,24 +1,34 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
-package:vutelemetry/api.dart';
-import 'package:vutelemetry/k.dart';
-import 'package:vutelemetry/try_platform_interface.dart';
-import 'package:vutelemetry/
-import 'package:vutelemetry/mentation/frame_monitoring.dart';
-import 'package:vutelemetry/mentation/global_attribute.dart';
+import 'package:vutelemetry/api.dart';
+import 'package:vutelemetry/flutter_sdk.dart';
+import 'package:vutelemetry/opentelemetry_platform_interface.dart';
+import 'package:vutelemetry/sdk.dart';
+import 'package:vutelemetry/src/instrumentation/frame_monitoring.dart';
+import 'package:vutelemetry/src/instrumentation/global_attribute.dart';
+import 'package:vutelemetry/src/instrumentation/user_interaction/activity_tracket.dart';
+import 'package:vutelemetry/src/instrumentation/user_interaction/maual_click_span.dart'
+    as user_interaction;
 
 class InitialisationParams {
   final String logsIngestUrl;
   final String tracesIngestUrl;
   final String appName;
+  /// The type of app (e.g., 'Flutter', 'Kotlin', 'Swift')
   final String appType;
+  /// The API key for authentication
+  final String apiKey;
+  /// The type of build (e.g., 'debug', 'release', 'uat')
+  final String buildType; 
   final bool enableSlowFrameTracking;
 
   InitialisationParams({
     required this.logsIngestUrl,
     required this.tracesIngestUrl,
     required this.appName,
+    required this.apiKey,
     required this.appType,
+    required this.buildType,
     this.enableSlowFrameTracking = false,
   });
 
@@ -28,6 +38,8 @@ class InitialisationParams {
       'tracesIngestUrl': tracesIngestUrl,
       'appName': appName,
       'appType': appType,
+      'apiKey': apiKey,
+      'buildType': buildType,
     };
   }
 }
@@ -38,16 +50,21 @@ class VuTelemetry {
   /// and set as global attributes
   static final _globalAttributes = <String, String>{};
 
+  static final _customAttributes = <String, String>{};
+
   static Map<String, String> get globalAttributes => _globalAttributes;
+
+  static Map<String, String> get customAttributes => _customAttributes;
+
 
   /// Set multiple custom attributes
   static set customAttributes(Map<String, String> attributes) {
-    _globalAttributes.addAll(attributes);
+    _customAttributes.addAll(attributes);
   }
 
   /// Set a single custom attribute
   static setCustomAttribute(String key, String value) {
-    _globalAttributes[key] = value;
+    _customAttributes[key] = value;
   }
 
   static bool _isInitialised = false;
@@ -67,6 +84,11 @@ class VuTelemetry {
     // Gathering all the device information
     // and setting it as global attributes
     await _collectDeviceInfo();
+
+    // Set the buildType to global attributes
+    _globalAttributes.addAll({
+      'build.type': params.buildType,
+    });
 
     final platformOriginalOnError = PlatformDispatcher.instance.onError;
 
@@ -97,6 +119,12 @@ class VuTelemetry {
     final exporter = CollectorExporter(
       Uri.parse(params.tracesIngestUrl),
       httpClient: httpClient,
+      // headers: {
+      //   'Content-Type': 'application/x-protobuf',
+      //   'X-API-Key': params.apiKey,
+      //   'app-name': params.appName,
+      //   'app-type': params.appType,
+      // },
     );
 
     FlutterError.onError = (FlutterErrorDetails details) async {
@@ -157,10 +185,32 @@ class VuTelemetry {
     }
   }
 
+  static ActivityTracer logActivity(
+    String eventName, {
+    Map<String, String>? attributes,
+  }) {
+    final span = globalTracerProvider
+        .getTracer('activity-instrumentation')
+        .startSpan('Activity');
+
+    // Set the activity name as an attribute
+    span.setAttribute(Attribute.fromString('event.name', eventName));
+
+    // Set any additional attributes
+    attributes?.forEach((key, value) {
+      span.setAttribute(Attribute.fromString(key, value));
+    });
+
+    return ActivityTracer(
+      eventName,
+      span,
+    );
+  }
+
   static void logClickEvent(
     String eventName, {
     Map<String, String>? attributes,
   }) async {
-    logClickEvent(eventName, attributes: attributes);
+    user_interaction.logClickEvent(eventName, attributes: attributes);
   }
 }

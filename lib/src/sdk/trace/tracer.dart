@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. Please see https://github.com/Workiva/opentelemetry-dart/blob/master/LICENSE for more information
 
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
+import 'package:vutelemetry/flutter_sdk.dart';
 
 import '../../../api.dart' as api;
 import '../../../sdk.dart' as sdk;
@@ -46,7 +48,7 @@ class Tracer implements api.Tracer {
         'attributes=$attributes, links=$links, startTime=$startTime, newRoot=$newRoot');
 
         
-    context ??= api.Context.current;
+    context ??= RouteObserverService().currentPageContext;
     startTime ??= _timeProvider.now;
 
     // If a valid, active Span is present in the context, use it as this Span's

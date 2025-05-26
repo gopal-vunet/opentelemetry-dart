@@ -10,6 +10,18 @@ class MethodChannelOpentelemetry extends OpentelemetryPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('opentelemetry');
 
+  MethodChannelOpentelemetry() {
+    methodChannel.setMethodCallHandler((MethodCall methodCall) async {
+      switch (methodCall.method) {
+        case 'getCustomAttributes':
+          return VuTelemetry.customAttributes;
+        default:
+          throw MissingPluginException(
+              'No implementation found for method ${methodCall.method}');
+      }
+    });
+  }
+
   @override
   Future<String?> getSessionId() async {
     final version = await methodChannel.invokeMethod<String>('getSessionId');

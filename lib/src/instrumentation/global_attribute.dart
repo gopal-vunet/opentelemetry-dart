@@ -15,6 +15,11 @@ Future<void> addGlobalAttribute(Span span) async {
     span.setAttribute(Attribute.fromString(key, value));
   });
 
+  VuTelemetry.customAttributes.forEach((key, value) {
+    span.setAttribute(Attribute.fromString(key, value));
+  });
+
+
   span.setAttribute(
     Attribute.fromString(
         'android.type', VuTelemetry.initialisationParams.appType),

@@ -20,6 +20,10 @@ class TrackedHttpClient extends BaseClient {
 
   TrackedHttpClient(this._httpClient);
 
+  factory TrackedHttpClient.createDefault() {
+    return TrackedHttpClient(Client());
+  }
+
   bool _isIpAddress(String host) {
     return RegExp(r'^(\d{1,3}\.){3}\d{1,3}$').hasMatch(host) || // IPv4
         host.contains(':'); // IPv6
@@ -56,6 +60,9 @@ class TrackedHttpClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     final rootSpan = _tracer.startSpan(request.method, kind: SpanKind.client);
+
+    print('Request: ${request.method} ${request.url}');
+    print('span: ${rootSpan.toString()}, trcer: ${_tracer.toString()}');
 
     W3CTraceContextPropagator().inject(
       contextWithSpan(Context.current, rootSpan),
@@ -132,3 +139,5 @@ class TrackedHttpClient extends BaseClient {
     });
   }
 }
+
+

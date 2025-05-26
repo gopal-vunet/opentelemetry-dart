@@ -22,21 +22,21 @@ android {
 
 	...
 	
-    compileOptions {
-	    ...
-        isCoreLibraryDesugaringEnabled = true
-    }
+  compileOptions {
+    ...
+    isCoreLibraryDesugaringEnabled = true
+  }
 
-    defaultConfig {
-        minSdk = 24
-    }
+  defaultConfig {
+    minSdk = 24
+  }
 
 	...
 
 }
 
 dependencies {
-    coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.1.4")
+  coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 ```
 
@@ -94,6 +94,37 @@ class MainApp extends StatelessWidget {
 }
 ```
 
+### Tracing Activitiies
+Use the method `VuTelemetry.logActivity` with an event name to record any Start recorning any activity. You can provide additional attributes to the  event. This again returns `ActivityTracer` instance, store this in a variable and call the `end` method in ActivityTracer to complete the activity.
+
+```dart
+ElevatedButton(
+  onPressed: () async {
+
+    final activity = VuTelemetry.logActivity('FundTransfer', attributes: {
+      'fromAccount': provider.selectedAccount?.accountNumber ?? '',
+      'toAccount': provider.selectedPayee?.payeeAccountNumber ?? '',
+      'amount': provider.amountController.text,
+    });
+
+    await provider.transfer();
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        activity.end();
+        return Dialog();
+      },
+    );
+  },
+            
+  child: const Text('Transfer'),
+)
+
+```
+
+
 
 ### Monitoring Network Calls
 
@@ -108,7 +139,7 @@ This will automatically track Network events and add trace header to every netwo
 
 ### Tracking Click Events
 
-Use the method `VuTelemetry.logClickEvent` with an event name to record any click event. You cab provide additional attributes to the click event.
+Use the method `VuTelemetry.logClickEvent` with an event name to record any click event. You can provide additional attributes to the click event.
 
 ```dart
 DropdownButton<Account>(

@@ -8,7 +8,6 @@ class RouteObserverService extends NavigatorObserver {
   static final RouteObserverService _instance =
       RouteObserverService._internal();
   Map<String, String?> _currentScreen = {};
-  final Tracer _tracer = globalTracerProvider.getTracer('nav-instrumentation');
 
   factory RouteObserverService() {
     return _instance;
@@ -38,10 +37,20 @@ class RouteObserverService extends NavigatorObserver {
     };
   }
 
-  void _startSpan(Map<String, String?> previousScreen, [String? log]) async {
+  Context _curentPageContext = Context.current;
+
+  Context get currentPageContext => _curentPageContext;
+
+  void _startSpan(Map<String, String?> previousScreen) async {
+    final Tracer _tracer =
+        globalTracerProvider.getTracer('nav-instrumentation');
+
     final span = _tracer.startSpan(
       'Created',
     );
+
+    _curentPageContext = contextWithSpan(Context.current, span);
+
     span.setAttribute(
       Attribute.fromString(
         'last.screen.name',
@@ -69,6 +78,7 @@ class RouteObserverService extends NavigatorObserver {
 
     await addGlobalAttribute(span);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      print('RouteObserverService: addPostFrameCallback - ${span} - $_tracer');
       span.addEvent('first_frame_rendered');
       span.end();
     });
@@ -77,10 +87,14 @@ class RouteObserverService extends NavigatorObserver {
   @override
   void didChangeTop(
       Route<dynamic> topRoute, Route<dynamic>? previousTopRoute) async {
+    print('RouteObserverService: didChangeTop');
+    print('topRoute: ${topRoute.settings.name}');
+    print('previousTopRoute: ${previousTopRoute?.settings.name}');
     if ((topRoute is! PageRoute) || (previousTopRoute is! PageRoute)) {
       super.didChangeTop(topRoute, previousTopRoute);
       return;
     }
+    print('RouteObserverService: didChangeTop - PageRoute');
     _currentScreen = _identifyScreen(topRoute);
     final previousScreen = _identifyScreen(previousTopRoute);
 

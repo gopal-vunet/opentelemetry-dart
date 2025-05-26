@@ -21,7 +21,11 @@ class OpentelemetryPlugin: FlutterPlugin, MethodCallHandler {
     ///
     /// This local reference serves to register the plugin with the Flutter Engine and unregister it
     /// when the Flutter Engine is detached from the Activity
-    private lateinit var channel : MethodChannel
+
+    companion object {
+        lateinit var channel : MethodChannel
+    }
+
     private val TAG = "OpentelemetryPlugin"
 
     private lateinit var flutterPluginBinding: FlutterPlugin.FlutterPluginBinding
@@ -34,13 +38,11 @@ class OpentelemetryPlugin: FlutterPlugin, MethodCallHandler {
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
-        Log.d(TAG, "onMethodCall: ${call.method} ${call.arguments}")
         when (call.method) {
             "getSessionId" -> {
                 result.success(OtelUtils.rum?.rumSessionId)
             }
             "getDeviceInfo" -> {
-                Log.d(TAG, "onMethodCall-getDeviceInfo: ${getDeviceInfo()}")
                 result.success(getDeviceInfo())
             }
             "initialise" -> {
@@ -51,8 +53,11 @@ class OpentelemetryPlugin: FlutterPlugin, MethodCallHandler {
                         spansIngestUrl =  call.argument<String?>("tracesIngestUrl") ?: "",
                         appName = call.argument<String?>("appName") ?: "",
                         appType = call.argument<String?>("appType") ?: "",
+                        buildType = call.argument<String?>("buildType") ?: "",
+                        apiKey = call.argument<String?>("apiKey") ?: "",
                     ).initRum()
 
+                    Log.i(TAG, "Opentelemetry initialized successfully")
                     result.success(null)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error initializing Opentelemetry", e)

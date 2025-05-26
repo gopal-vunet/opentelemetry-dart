@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import io.flutter.plugin.common.MethodChannel
 import io.opentelemetry.android.BuildConfig
 import io.opentelemetry.android.OpenTelemetryRum
 import io.opentelemetry.android.OpenTelemetryRumBuilder
@@ -21,6 +22,10 @@ import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter
 import io.opentelemetry.sdk.common.CompletableResultCode
 import io.opentelemetry.sdk.logs.LogRecordProcessor
 import io.opentelemetry.sdk.logs.ReadWriteLogRecord
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.X509TrustManager
 
 class OtelUtils(
     private val context: Application,
@@ -28,6 +33,8 @@ class OtelUtils(
     private val logsIngestUrl: String,
     private val appName : String,
     private val appType : String,
+    private val buildType : String,
+    private val apiKey : String,
 ) {
 
     companion object {
@@ -81,6 +88,7 @@ class OtelUtils(
                         put(AttributeKey.stringKey("app.name"), appName)
                         put(AttributeKey.stringKey("app.version.code"), versionCode)
                         put(AttributeKey.stringKey("android.type"), appType)
+                        put(AttributeKey.stringKey("build.type"), buildType)
                         put(AttributeKey.stringKey("device.manufacturer"), Build.MANUFACTURER)
                         put(AttributeKey.stringKey("device.model.identifier"), Build.MODEL)
                         put(AttributeKey.stringKey("device.model.name"), Build.MODEL)
@@ -99,20 +107,65 @@ class OtelUtils(
                 )
 
 
-        val sessionAwareLogProcessor = SessionAwareLogProcessor(sessionIdProvider = { rum?.rumSessionId }, routeProvider = {
-            val flutterPrefs = context.getSharedPreferences("FlutterSharedPreferences", android.content.Context.MODE_PRIVATE)
-            flutterPrefs.getString("flutter.currentWidget", "unknown") ?: "unknown"
-        })
+        val sessionAwareLogProcessor = SessionAwareLogProcessor(
+            sessionIdProvider = { rum?.rumSessionId },
+            routeProvider = {
+                val flutterPrefs = context.getSharedPreferences("FlutterSharedPreferences", android.content.Context.MODE_PRIVATE)
+                flutterPrefs.getString("flutter.currentWidget", "unknown") ?: "unknown"
+            },
+            customAttributesProvider = {
+
+                val attributesBuilder = Attributes.builder()
+
+                OpentelemetryPlugin.channel.invokeMethod("getCustomAttributes", null, object : MethodChannel.Result {
+                    override fun success(result: Any?) {
+                        if (result is Map<*, *>) {
+                            for ((key, value) in result) {
+                                if (key is String && value is String) {
+                                    attributesBuilder.put(stringKey(key), value)
+                                }
+                            }
+                        }
+                    }
+
+                    override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                        Log.e(TAG, "Error from Dart: $errorMessage")
+                    }
+
+                    override fun notImplemented() {
+                        Log.e(TAG, "Dart method not implemented")
+                    }
+                })
+
+
+                attributesBuilder.build()
+            },
+        )
+
+        val trustAllCerts = object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        }
+
+        val sslContext = SSLContext.getInstance("TLS").apply {
+            init(null, arrayOf(trustAllCerts), SecureRandom())
+        }
 
         val otelRumBuilder: OpenTelemetryRumBuilder =
             OpenTelemetryRum.builder(context, config)
                 .addSpanExporterCustomizer {
                     OtlpHttpSpanExporter.builder()
                         .setEndpoint(spansIngestUrl)
+                        .setSslContext(sslContext, trustAllCerts)
+                        .setHeaders {
+                            mapOf("X-API-Key" to apiKey)
+                        }
                         .build()
                 }
                 .addLogRecordExporterCustomizer {
                     OtlpHttpLogRecordExporter.builder()
+                        .setSslContext(sslContext, trustAllCerts)
                         .setEndpoint(logsIngestUrl)
                         .build()
                 }
@@ -136,13 +189,15 @@ class OtelUtils(
 
 class SessionAwareLogProcessor(
     private val sessionIdProvider: () -> String?,
-    private val routeProvider: () -> String?
+    private val routeProvider: () -> String?,
+    private val customAttributesProvider: () -> Attributes
 ) : LogRecordProcessor {
 
     override fun onEmit(context: io.opentelemetry.context.Context, logRecord: ReadWriteLogRecord){
         // Add session ID to the log record's attributes
         val currentAttributes = logRecord.toLogRecordData().attributes
         val updatedAttributes = Attributes.builder()
+            .putAll(customAttributesProvider())
             .putAll(currentAttributes)
             .put(stringKey("session.id"), sessionIdProvider().toString())
             .put(stringKey("screen.name"), routeProvider().toString() )

@@ -1,0 +1,14 @@
+name: opentelemetry_example
+description: "Demonstrates how to use the opentelemetry plugin."
+publish_to: 'none' 
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  # vutelemetry:
+  #   path: ../../
+  opentelemetry: ^0.18.10
+
+
+
